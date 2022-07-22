@@ -11,10 +11,6 @@ SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('love_sandwiches')
 
-sales = SHEET.worksheet('sales')
-
-data = sales.get_all_values()
-
 
 def get_sales_data():
     '''
@@ -146,9 +142,23 @@ def main():
     sales_columns = get_last_entries_sales()
     stock_data = calculate_stock_data(sales_columns)
     update_worksheet(stock_data, 'stock')
+    return stock_data
 
     
-
-
 print('Welcome to Love Sandwiches Data Automation\n')
-main()
+stock_data = main()
+
+
+def get_stock_values(data):
+    '''
+    Get items names and updated stock from stock worksheet
+    Return a dictionary with stock needed for next market.
+    '''
+    headings = SHEET.worksheet('stock').get_all_values()[0]
+    return dict(zip(headings, data))
+    
+
+print('Make the following numbers of sandwiches for next market:\n')
+
+stock_values = get_stock_values(stock_data)
+print(stock_values)
